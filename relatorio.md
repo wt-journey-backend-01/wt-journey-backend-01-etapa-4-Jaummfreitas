@@ -1,103 +1,82 @@
 <sup>Esse é um feedback gerado por IA, ele pode conter erros.</sup>
 
-Você tem 9 créditos restantes para usar o sistema de feedback AI.
+Você tem 8 créditos restantes para usar o sistema de feedback AI.
 
 # Feedback para Jaummfreitas:
 
 Nota final: **40.3/100**
 
-# Feedback para Jaummfreitas 🚨👮‍♂️🚀
+# Feedback para Jaummfreitas 🚔✨
 
-Olá, Jaummfreitas! Antes de mais nada, parabéns pelo esforço e por já ter avançado bastante no seu projeto! 🎉 Você conseguiu implementar funcionalidades importantes e seu código está bem organizado em vários pontos, o que é fundamental para um projeto profissional. Vamos juntos analisar o que está ótimo e onde podemos melhorar para deixar sua API redondinha, segura e pronta para produção.
-
----
-
-## 🎉 Pontos Positivos que Encontrei no Seu Código
-
-- **Estrutura geral dos arquivos:** Você organizou controllers, repositories, rotas e db com migrations e seeds, o que é ótimo para manter a aplicação escalável.
-- **Implementação das rotas e controllers para agentes e casos:** Seus controllers estão bem estruturados, com tratamento de erros e validações básicas.
-- **Uso do Knex para interagir com o banco:** Você fez um bom uso do Knex, com queries claras e tratamento correto dos retornos.
-- **Migrations criadas para as tabelas agentes, casos e usuários:** Você criou as migrations seguindo o padrão esperado, com tipos e constraints corretas.
-- **Seeds para popular agentes e casos:** Está tudo certo para popular o banco com dados iniciais.
-- **Uso de variáveis de ambiente para configuração do banco e JWT:** Ótimo não deixar segredos hardcoded.
-- **Implementação parcial de autenticação:** Você já começou a implementar login e signup, usando bcrypt e JWT, o que é essencial para segurança.
-
-Além disso, você conseguiu implementar alguns bônus interessantes, como a filtragem simples para casos e agentes, e a documentação Swagger está presente nas rotas principais. Isso mostra que você está indo além do básico! 👏
+Olá, Jaummfreitas! Tudo bem? Primeiro, quero parabenizá-lo pelo empenho e dedicação em construir essa API para o Departamento de Polícia. Você já tem uma base muito sólida, com controllers, repositories, rotas, knex configurado, e até seeds para popular o banco. 🎉 Isso é ótimo!
 
 ---
 
-## 🚩 Oportunidades de Melhoria (com explicações e sugestões)
+## 🎉 Pontos Fortes e Conquistas Bônus
 
-### 1. Falta da Estrutura Obrigatória para Autenticação e Segurança
+- Você estruturou muito bem os controllers, repositories e rotas para agentes e casos, com validações e tratamento de erros claros.
+- O uso do Knex está correto nas queries, e você criou migrations para as tabelas `agentes`, `casos` e `usuarios` — isso mostra que você domina a parte de banco de dados.
+- O seed populando agentes e casos está impecável, facilitando testes locais.
+- Você já tem o endpoint de login e cadastro implementados no `authController.js` (mesmo com alguns problemas que vamos falar).
+- A documentação no `INSTRUCTIONS.md` está detalhada e cobre bastante do setup e uso da API.
+- Você passou em vários testes importantes, como criação e login de usuários, logout, proteção de rotas para agentes e casos, e manipulação correta dos dados de agentes e casos.
+- Além disso, implementou filtros para casos e ordenação para agentes (bônus), o que mostra que está avançando bem!
 
-**Problema:**  
-No seu projeto, não encontrei os arquivos e pastas essenciais para autenticação, como:
+---
+
+## ⛔ Pontos de Atenção e Oportunidades de Melhoria
+
+### 1. Estrutura de Diretórios Incompleta para Autenticação e Middleware
+
+Eu percebi que os arquivos essenciais para esta etapa, como:
 
 - `routes/authRoutes.js`
 - `middlewares/authMiddleware.js`
 
-Esses arquivos são fundamentais para que você consiga implementar o registro, login, logout e proteção das rotas `/agentes` e `/casos` com JWT. Além disso, no seu `server.js`, você não está importando nem usando as rotas de autenticação, nem aplicando o middleware de autenticação nas rotas protegidas.
+não estão presentes no seu repositório, ou pelo menos não no caminho correto esperado. Isso é um ponto crítico porque:
 
-**Por que isso é importante?**  
-Sem essas rotas e middleware, sua API não consegue autenticar usuários nem proteger recursos sensíveis. Isso faz com que qualquer pessoa possa acessar e modificar agentes e casos, o que é um problema grave de segurança.
+- Sem `authRoutes.js`, sua API não expõe os endpoints para registro, login, logout e exclusão de usuários.
+- Sem o `authMiddleware.js`, você não consegue proteger as rotas de agentes e casos, o que faz com que a segurança da API fique comprometida.
 
-**Como corrigir?**  
-- Crie o arquivo `routes/authRoutes.js` e defina as rotas para `/auth/register`, `/auth/login` e `/auth/logout`.  
-- Crie o middleware `authMiddleware.js` que valide o token JWT no header `Authorization` e adicione os dados do usuário autenticado no `req.user`.  
-- No `server.js`, importe e use as rotas de autenticação (`app.use('/auth', authRoutes)`) e aplique o middleware nas rotas `/agentes` e `/casos`, por exemplo:
+**Por exemplo, sua `server.js` não importa nem usa um router de autenticação:**
+
+```js
+const authRouter = require('./routes/authRoutes');
+app.use('/auth', authRouter);
+```
+
+E também não tem aplicação do middleware para proteger rotas:
 
 ```js
 const authMiddleware = require('./middlewares/authMiddleware');
-const authRoutes = require('./routes/authRoutes');
-
-app.use('/auth', authRoutes);
 app.use('/agentes', authMiddleware, agentesRouter);
 app.use('/casos', authMiddleware, casosRouter);
 ```
 
+Essas ausências explicam porque seus endpoints de agentes e casos não estão protegidos, e por que algumas requisições podem estar passando sem autenticação.
+
 ---
 
-### 2. Validações e Tratamento do Cadastro de Usuário (Signup)
+### 2. Problemas no `authController.js` — Mistura de Sintaxe e Erros de Variáveis
 
-**Problema:**  
-No seu `authController.js`, a função `signup` não está validando os campos obrigatórios do usuário (nome, email, senha) antes de tentar criar o usuário, nem está validando a força da senha conforme o requisito (mínimo 8 caracteres, letras maiúsculas, minúsculas, números e caracteres especiais). Além disso, notei que você está misturando `nome` e `name` no código, o que pode gerar inconsistência.
+No seu `authController.js`, notei que você está usando **ES Modules (import/export)**, enquanto no restante do projeto está usando **CommonJS (require/module.exports)**. Essa mistura pode causar erros na execução do código, dependendo da configuração do Node.js.
 
-Exemplo do seu código:
+Além disso, há erros de nomenclatura que comprometem a funcionalidade:
+
+- Você importa `usuariosRepository` como default, mas tenta usar propriedades sem verificar se está correto.
+- No método `signup`, você recebe `{ nome, email, senha }` mas depois tenta usar `name` dentro do objeto para inserir no banco:
 
 ```js
-const { nome, email, senha } = req.body;
-// ...
 const newUser = await usuariosRepository.insertUser({name, email, senha: hashPassword});
 ```
 
-Aqui você extrai `nome` mas passa `name` para o repositório, o que pode gerar dados incompletos no banco.
-
-**Por que isso é importante?**  
-Sem validação, usuários podem ser criados com dados inválidos ou incompletos, o que quebra a integridade do sistema e pode gerar falhas posteriores. A validação da senha é essencial para garantir segurança.
-
-**Como corrigir?**  
-- Valide se `nome`, `email` e `senha` estão presentes e não vazios.  
-- Implemente uma validação da senha usando regex para garantir os requisitos mínimos, por exemplo:
-
-```js
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-if (!passwordRegex.test(senha)) {
-  return next(errorHandler({ type: 'validation', message: 'Senha não atende aos requisitos mínimos', status: 400 }));
-}
-```
-
-- Corrija o uso dos nomes dos campos para serem consistentes (`nome` em todo lugar ou `name` em todo lugar). Por exemplo:
+Aqui, `name` está indefinido, o correto é usar `nome`:
 
 ```js
 const newUser = await usuariosRepository.insertUser({ nome, email, senha: hashPassword });
 ```
 
----
-
-### 3. Resposta do Login e Estrutura do Token JWT
-
-**Problema:**  
-Na sua função `login`, você retorna o token dentro de um objeto com a chave `token` e uma mensagem, mas o requisito é que o token seja retornado na chave `acess_token` e sem mensagem extra, assim:
+- No login, você retorna o token no formato `{ message: "Login successful", token }`, mas o requisito pede que retorne:
 
 ```json
 {
@@ -105,166 +84,254 @@ Na sua função `login`, você retorna o token dentro de um objeto com a chave `
 }
 ```
 
-Além disso, no payload do JWT, você está usando `name` em vez de `nome`, o que pode causar inconsistências.
+Ou seja, o nome da propriedade deve ser exatamente `acess_token` (atenção ao "c" e "s"), e não `token` ou `access_token`.
 
-Exemplo do seu código:
-
-```js
-const token = jwt.sign({ id: user.id, name: user.name, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
-res.status(200).json({ message: "Login successful", token });
-```
-
-**Por que isso é importante?**  
-Os clientes que consomem sua API esperam um formato específico para o token. Se você não seguir esse padrão, eles não conseguirão autenticar corretamente.
-
-**Como corrigir?**
-
-- Altere para:
+- Também vi que você usa `bcrypt.compareSync` com `await`, o que não é necessário. Ou usa a versão síncrona sem `await`, ou a assíncrona com `await`:
 
 ```js
-const token = jwt.sign({ id: user.id, nome: user.nome, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
-res.status(200).json({ acess_token: token });
+const isPasswordValid = bcrypt.compareSync(senha, user.senha); // síncrono, sem await
+// OU
+const isPasswordValid = await bcrypt.compare(senha, user.senha); // assíncrono, com await
 ```
 
 ---
 
-### 4. Uso Misturado de CommonJS e ES Modules
+### 3. Falta de Validação Rigorosa no Cadastro de Usuário
 
-**Problema:**  
-No seu projeto, você está usando `require` e `module.exports` em alguns arquivos (ex: `agentesRepository.js`), e `import`/`export default` em outros (ex: `authController.js` e `usuariosRepository.js`).
+Os testes indicam que a API deve validar:
 
-Essa mistura pode causar problemas na execução, pois Node.js espera um padrão consistente de módulos.
+- Nome não pode ser vazio ou nulo
+- Email não pode ser vazio ou nulo
+- Senha deve ter pelo menos 8 caracteres, conter letra maiúscula, minúscula, número e caractere especial
+- Não permitir campos extras no payload de cadastro
 
-**Por que isso é importante?**  
-Misturar os dois sistemas pode gerar erros de importação, falhas de carregamento e dificultar a manutenção do código.
+No seu `signup`, não há nenhuma validação explícita desses critérios antes de tentar criar o usuário. Isso faz com que o cadastro aceite dados inválidos, o que quebra as regras de negócio e causa falhas nos testes.
 
-**Como corrigir?**  
-Escolha um padrão e mantenha em todo o projeto. Para projetos Node.js comuns, o padrão mais usado é CommonJS (`require` e `module.exports`). Se quiser usar ES Modules, configure seu `package.json` com `"type": "module"` e ajuste todas as importações.
-
-Exemplo usando CommonJS:
+Você pode usar uma biblioteca como `zod` (que está nas suas dependências) para validar o schema, por exemplo:
 
 ```js
-// authController.js
-const usuariosRepository = require("../repositories/usuariosRepository");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const errorHandler = require("../utils/errorHandler");
-
-// ...restante do código
-
-module.exports = {
-  login,
-  signup
-};
-```
-
----
-
-### 5. Validação dos Campos no Cadastro de Usuário e Rejeição de Campos Extras
-
-**Problema:**  
-Os testes esperam que o cadastro de usuário rejeite campos extras (não permitidos) e campos faltantes, retornando erro 400.
-
-No seu código, não vi nenhuma validação explícita para rejeitar campos extras enviados no corpo da requisição, nem para garantir que todos os campos obrigatórios estejam presentes.
-
-**Por que isso é importante?**  
-Garantir que a API só aceite dados esperados evita problemas de segurança e inconsistências futuras.
-
-**Como corrigir?**  
-- Use uma biblioteca de validação como `zod` (que você já tem nas dependências) para definir um schema para o usuário e validar o corpo da requisição.
-
-Exemplo com zod:
-
-```js
-const { z } = require("zod");
+import { z } from "zod";
 
 const userSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
   email: z.string().email("Email inválido"),
-  senha: z.string().min(8, "Senha deve ter pelo menos 8 caracteres")
+  senha: z.string()
+    .min(8, "Senha deve ter no mínimo 8 caracteres")
     .regex(/[A-Z]/, "Senha deve conter letra maiúscula")
     .regex(/[a-z]/, "Senha deve conter letra minúscula")
-    .regex(/\d/, "Senha deve conter número")
-    .regex(/[\W_]/, "Senha deve conter caractere especial"),
+    .regex(/[0-9]/, "Senha deve conter número")
+    .regex(/[^A-Za-z0-9]/, "Senha deve conter caractere especial"),
 });
 
 const signup = async (req, res, next) => {
   try {
-    const parsedData = userSchema.parse(req.body);
-    // continuar com criação do usuário usando parsedData
-  } catch (error) {
-    return next(errorHandler({ type: 'validation', message: error.errors[0].message, status: 400 }));
+    const data = userSchema.parse(req.body);
+    // continuar com criação do usuário...
+  } catch (e) {
+    return res.status(400).json({ message: e.errors[0].message });
   }
 };
 ```
 
 ---
 
-### 6. Falta de Middleware para Proteger as Rotas de Agentes e Casos
+### 4. Falta de Middleware de Autenticação nas Rotas de Agentes e Casos
 
-**Problema:**  
-No seu `server.js`, você está usando as rotas de agentes e casos sem aplicar nenhum middleware de autenticação. Isso faz com que qualquer usuário, mesmo sem token, consiga acessar essas rotas.
-
-**Por que isso é importante?**  
-O requisito do projeto é garantir que apenas usuários autenticados possam acessar e modificar agentes e casos.
-
-**Como corrigir?**  
-- Crie um middleware `authMiddleware.js` que valide o token JWT do header `Authorization`.  
-- No `server.js`, aplique esse middleware nas rotas protegidas:
+No seu `server.js`, você registra as rotas de agentes e casos assim:
 
 ```js
+app.use('/agentes', agentesRouter);
+app.use('/casos', casosRouter);
+```
+
+Mas não há aplicação do middleware que valida o JWT para proteger essas rotas.
+
+Sem essa proteção, qualquer pessoa pode acessar e modificar agentes e casos sem estar autenticada, o que não está de acordo com o requisito de segurança.
+
+Você precisa criar o middleware `authMiddleware.js` que:
+
+- Verifica o header `Authorization: Bearer <token>`
+- Valida o token JWT com o segredo da variável de ambiente `JWT_SECRET`
+- Coloca os dados do usuário autenticado em `req.user`
+- Caso o token seja inválido ou ausente, retorna status 401
+
+E então aplicar esse middleware nas rotas:
+
+```js
+const authMiddleware = require('./middlewares/authMiddleware');
+
 app.use('/agentes', authMiddleware, agentesRouter);
 app.use('/casos', authMiddleware, casosRouter);
 ```
 
 ---
 
-### 7. Resposta do Login com Mensagem Extra (não esperada)
+### 5. Variáveis de Ambiente e Configurações
 
-Além do formato do token, vi que você retorna uma mensagem `"Login successful"` junto com o token, mas o requisito pede só o token no campo `acess_token`. Isso pode quebrar a integração com clientes que esperam o formato estrito.
+Você está usando o `.env` para variáveis do banco e JWT, o que é ótimo! Só reforço que:
 
----
-
-## 📚 Recursos para Você Aprimorar e Corrigir Esses Pontos
-
-- **Autenticação JWT e bcrypt:**  
-  [Esse vídeo, feito pelos meus criadores, fala muito bem sobre autenticação JWT e uso de bcrypt para hash de senhas.](https://www.youtube.com/watch?v=L04Ln97AwoY)
-
-- **Validação com Zod:**  
-  Para garantir que seus dados estejam corretos antes de salvar, veja como usar a biblioteca Zod para validar schemas:  
-  https://github.com/colinhacks/zod
-
-- **Organização do Projeto e Arquitetura MVC:**  
-  [Este vídeo é ótimo para entender como organizar seu projeto Node.js em controllers, repositories e rotas.](https://www.youtube.com/watch?v=bGN_xNc4A1k&t=3s)
-
-- **Configuração do Banco com Docker e Knex:**  
-  Caso tenha dúvidas sobre migrations e seeds, recomendo:  
-  https://www.youtube.com/watch?v=dXWy_aGCW1E
+- A variável `JWT_SECRET` deve estar definida no `.env`
+- A variável `SALT_ROUNDS` para bcrypt deve estar definida e ser um número (exemplo: `SALT_ROUNDS=10`)
+- No seu código, você faz `parseInt(process.env.SALT_ROUNDS)`, então se essa variável não estiver definida, a função pode quebrar.
 
 ---
 
-## 📝 Resumo Rápido dos Principais Pontos para Você Focar
+## Exemplos de Correções e Dicas Práticas
 
-- [ ] Criar e usar as rotas de autenticação (`authRoutes.js`) com endpoints `/auth/register`, `/auth/login` e `/auth/logout`.
-- [ ] Criar o middleware `authMiddleware.js` para validar JWT e proteger as rotas `/agentes` e `/casos`.
-- [ ] Corrigir o `authController.js` para validar todos os campos obrigatórios, validar a força da senha e rejeitar campos extras.
-- [ ] Ajustar o retorno do login para enviar o token no campo `acess_token` sem mensagens extras.
-- [ ] Padronizar o uso de módulos (CommonJS ou ES Modules) para evitar erros de importação.
-- [ ] No `server.js`, importar e usar as rotas de autenticação e aplicar o middleware de autenticação nas rotas protegidas.
-- [ ] Usar validação de esquema (ex: Zod) para garantir dados corretos na criação de usuários.
-- [ ] Garantir que o campo `nome` seja usado de forma consistente em todo o código (não misturar com `name`).
+### Exemplo de middleware de autenticação (authMiddleware.js):
+
+```js
+const jwt = require('jsonwebtoken');
+
+function authMiddleware(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) return res.status(401).json({ message: 'Token não fornecido' });
+
+  const token = authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'Token inválido' });
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(401).json({ message: 'Token inválido ou expirado' });
+    req.user = user;
+    next();
+  });
+}
+
+module.exports = authMiddleware;
+```
+
+### Exemplo de rota de autenticação (routes/authRoutes.js):
+
+```js
+const express = require('express');
+const router = express.Router();
+const authController = require('../controllers/authController');
+
+router.post('/register', authController.signup);
+router.post('/login', authController.login);
+router.post('/logout', authController.logout); // se implementar logout
+
+module.exports = router;
+```
+
+### Ajuste no `authController.js` para cadastro:
+
+```js
+const usuariosRepository = require("../repositories/usuariosRepository");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const errorHandler = require("../utils/errorHandler");
+
+const signup = async (req, res, next) => {
+    try {
+        const { nome, email, senha } = req.body;
+
+        // Validação simples
+        if (!nome || !email || !senha) {
+            return res.status(400).json({ message: "Nome, email e senha são obrigatórios" });
+        }
+        // Aqui você pode implementar validações mais robustas, como regex para senha
+
+        const user = await usuariosRepository.findUserByEmail(email);
+        if (user) {
+            return res.status(400).json({ message: "Usuário já existe" });
+        }
+
+        const saltRounds = parseInt(process.env.SALT_ROUNDS) || 10;
+        const salt = await bcrypt.genSalt(saltRounds);
+        const hashPassword = await bcrypt.hash(senha, salt);
+
+        const newUser = await usuariosRepository.insertUser({ nome, email, senha: hashPassword });
+
+        res.status(201).json({ message: "Usuário criado com sucesso", user: newUser[0] });
+    } catch (error) {
+        next(errorHandler({ type: "user creation error", message: "Erro ao criar usuário", status: 500 }));
+    }
+};
+```
+
+### Ajuste no login para retornar o token no formato esperado:
+
+```js
+const login = async (req, res, next) => {
+    try {
+        const { email, senha } = req.body;
+
+        const user = await usuariosRepository.findUserByEmail(email);
+        if (!user) {
+            return res.status(404).json({ message: "Usuário não encontrado" });
+        }
+
+        const isPasswordValid = await bcrypt.compare(senha, user.senha);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: "Senha incorreta" });
+        }
+
+        const token = jwt.sign(
+          { id: user.id, nome: user.nome, email: user.email },
+          process.env.JWT_SECRET,
+          { expiresIn: '1d' }
+        );
+
+        res.status(200).json({ acess_token: token });
+    } catch (error) {
+        next(errorHandler({ type: "login error", message: "Erro ao realizar login", status: 500 }));
+    }
+};
+```
 
 ---
 
-## Considerações Finais
+## 🔍 Análise Geral
 
-Jaummfreitas, você está no caminho certo! Seu projeto já tem uma base sólida e com esses ajustes, sua API vai ficar segura, robusta e pronta para produção. Autenticação é um tema que exige atenção aos detalhes, mas com paciência e estudo você vai dominar rapidinho.
+Seu projeto está no caminho certo, mas para garantir a segurança e cumprir os requisitos da etapa 4, você precisa:
 
-Continue firme, aproveite os recursos que recomendei e não hesite em revisar passo a passo o fluxo de criação, login e proteção das rotas. Segurança é essencial, e você está construindo algo muito importante!
+- Implementar as rotas de autenticação (`authRoutes.js`) e o middleware de autenticação (`authMiddleware.js`).
+- Corrigir erros no `authController.js` relacionados a sintaxe, variáveis e formato de resposta.
+- Adicionar validações rigorosas no cadastro de usuário para garantir que nome, email e senha estejam no formato esperado.
+- Aplicar o middleware de autenticação nas rotas de agentes e casos para proteger os dados.
+- Garantir que as variáveis de ambiente estejam corretamente configuradas e usadas.
 
-Se precisar de mais ajuda, estarei por aqui. 🚀💪
+---
 
-Um grande abraço e bons códigos! 👊✨
+## 📚 Recursos Recomendados para Você
+
+- Para entender e implementar autenticação com JWT e bcrypt corretamente, recomendo muito este vídeo, feito pelos meus criadores, que explica os conceitos básicos e fundamentais da cibersegurança e autenticação:  
+  ▶️ https://www.youtube.com/watch?v=Q4LQOfYwujk
+
+- Para aprender a trabalhar com JWT na prática, incluindo criação, verificação e proteção de rotas:  
+  ▶️ https://www.youtube.com/watch?v=keS0JWOypIU
+
+- Para entender melhor o uso de bcrypt e JWT juntos em Node.js:  
+  ▶️ https://www.youtube.com/watch?v=L04Ln97AwoY
+
+- Para organizar seu projeto seguindo a arquitetura MVC e boas práticas:  
+  ▶️ https://www.youtube.com/watch?v=bGN_xNc4A1k&t=3s
+
+- Para validar dados de entrada com `zod` (altamente recomendado para garantir segurança e qualidade):  
+  https://github.com/colinhacks/zod#usage
+
+- Para configurar e trabalhar com banco de dados PostgreSQL no Docker e Knex:  
+  ▶️ https://www.youtube.com/watch?v=uEABDBQV-Ek&t=1s
+
+---
+
+## 📝 Resumo Rápido para Você Focar
+
+- [ ] Criar `routes/authRoutes.js` e expor os endpoints de `/auth/register`, `/auth/login`, `/auth/logout`.
+- [ ] Criar `middlewares/authMiddleware.js` para validar tokens JWT e proteger rotas.
+- [ ] Aplicar o middleware de autenticação nas rotas `/agentes` e `/casos` no `server.js`.
+- [ ] Corrigir `authController.js` para usar CommonJS ou configurar o projeto para ES Modules, e corrigir nomes de variáveis (`nome` vs `name`).
+- [ ] Ajustar o retorno do login para `{ acess_token: "token" }` conforme especificado.
+- [ ] Implementar validações rigorosas no cadastro de usuários (nome, email, senha) para evitar dados inválidos.
+- [ ] Garantir que o `.env` contenha `JWT_SECRET` e `SALT_ROUNDS` configurados corretamente.
+- [ ] Evitar misturar sintaxes de import/export em projetos Node.js sem configuração adequada.
+
+---
+
+Jaummfreitas, sua jornada está só começando e você já avançou bastante! 🚀 Com essas correções, sua API vai ficar muito mais segura, profissional e pronta para produção. Continue firme, revise esses pontos com calma e, se precisar, volte aos vídeos que recomendei para consolidar o aprendizado. Estou aqui torcendo por você! 💪😊
+
+Um abraço de Code Buddy! 🤖👊
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
